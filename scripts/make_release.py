@@ -23,6 +23,7 @@ def parse_changelog():
         for line in lineiter:
             match = re.search('^Version\s+(.*)', line.strip())
             if match is None:
+                print line
                 continue
             length = len(match.group(1))
             version = match.group(1).strip()

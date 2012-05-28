@@ -49,3 +49,16 @@ Just look at the vm property of the Datastore managed object::
     sandbox5
     rhel5Guest
     ----------
+
+Additional Methods
+------------------
+
+Added additional methods to the datastore object. All method properties 
+return values in bytes::
+
+    >>> store = datastore.get(client, name="something")
+    store.provisioned_space
+    store.capacity-space
+    store.free_space
+    store.used_space
+    store.uncommitted_space

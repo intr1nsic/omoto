@@ -1,7 +1,9 @@
 from psphere.managedobjects import *
 
-from psphere.aobjects.cluster import ComputeResource
-from psphere.aobjects.cluster import ClusterComputeResource
+from psphere.aobjects.computeresource import ComputeResource
+from psphere.aobjects.clustercomputeresource import ClusterComputeResource
+from psphere.aobjects.datacenter import Datacenter
+from psphere.aobjects.datastore import Datastore
 
 classmap = dict((x.__name__, x) for x in (
     ExtensibleManagedObject,

@@ -1,3 +1,12 @@
+Version 0.5.2
+-------------
+
+- Added aobjects for ComputeResource, ClusterComputeResource, Datacenter,
+  Datastore
+- Added network utility module to associate vlans and network helpers
+- Added zenoss class to help with functions related to zenoss
+  ( Get Events, Add device, add event, list devices )
+
 Version 0.5.1
 -------------
 
