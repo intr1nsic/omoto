@@ -38,9 +38,15 @@ from psphere import soap, ManagedObject
 from psphere.config import _config_value
 from psphere.errors import (ConfigError, ObjectNotFoundError, TaskFailedError,
                             NotLoggedInError)
-from psphere.managedobjects import ServiceInstance, Task, classmapper
+from psphere.managedobjects import ServiceInstance, Task
+from psphere.aobjects import classmapper
 
 logger = logging.getLogger(__name__)
+
+from suds.client import ServiceSelector
+from suds.options import Options
+from suds.properties import Unskin
+from copy import deepcopy
 
 class Client(suds.client.Client):
     """A client for communicating with a VirtualCenter/ESX/ESXi server
@@ -61,7 +67,7 @@ class Client(suds.client.Client):
 
     """
     def __init__(self, server=None, username=None, password=None,
-                 wsdl_location="local", timeout=30):
+                 wsdl_location="local", timeout=30, init_clone=False, clone=None):
         self._logged_in = False
         if server is None:
             server = _config_value("general", "server")
@@ -92,17 +98,30 @@ class Client(suds.client.Client):
         else:
             raise ValueError("wsdl_location must be \"local\" or \"remote\"")
         # Init the base class
-        try:
-            suds.client.Client.__init__(self, wsdl_uri)
-        except URLError:
-            logger.critical("Failed to connect to %s", self.server)
-            raise
-        except IOError:
-            logger.critical("Failed to load the local WSDL from %s", wsdl_uri)
-            raise
-        except TransportError:
-            logger.critical("Failed to load the remote WSDL from %s", wsdl_uri)
-            raise
+        if clone:
+            self.sd = clone.sd
+            self.options = Options()
+            cp = Unskin(self.options)
+            mp = Unskin(clone.options)
+            cp.update(deepcopy(mp))
+            self.wsdl = clone.wsdl
+            self.factory = clone.factory
+            self.service = ServiceSelector(self, clone.wsdl.services)
+            self.messages = dict(tx=None, rx=None)
+        else:
+            try:
+                suds.client.Client.__init__(self, wsdl_uri)
+            except URLError:
+                logger.critical("Failed to connect to %s", self.server)
+                raise
+            except IOError:
+                logger.critical("Failed to load the local WSDL from %s", wsdl_uri)
+                raise
+            except TransportError:
+                logger.critical("Failed to load the remote WSDL from %s", wsdl_uri)
+                raise
+        if init_clone:
+            return
         self.options.transport.options.timeout = timeout
         self.set_options(location=url)
         mo_ref = soap.ManagedObjectReference("ServiceInstance",
@@ -117,6 +136,10 @@ class Client(suds.client.Client):
 
         if self._logged_in is False:
             self.login(self.username, self.password)
+
+    def cloneme(self, server=None, username=None, password=None):
+        clone = self.clone()
+        clone.__init__(server, username, password)
 
     def _init_logging(self):
         """Initialize logging."""
@@ -545,7 +568,7 @@ class Client(suds.client.Client):
         for obj_content in obj_contents:
             logger.debug("In find_entity_view with object of type %s",
                          obj_content.obj.__class__.__name__)
-            obj_content.obj.update_view_data(properties=properties)
+            #obj_content.obj.update_view_data(properties=properties)
             views.append(obj_content.obj)
 
         return views
