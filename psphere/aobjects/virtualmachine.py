@@ -62,6 +62,33 @@ class VirtualMachine(managedobjects.VirtualMachine):
 		except TaskFailedError, e:
 			raise e
 
+	def reset(self, async=True):
+		"""
+		Reset the Virtual Machine
+		Allows the option to either return the task
+		or wait for the task to finish
+		"""
+		# Because it may break
+		try:
+			task = self.ResetVM_Task()
+
+			if async:
+				status = task.wait_for_state([task.STATE_SUCCESS,
+												task.STATE_ERROR])
+
+				if status == task.STATE_ERROR:
+					raise TaskFailedError(task.get_error_message)
+
+				# Task completed, update object and return
+				self.update()
+				return
+
+			# Task was sync, return the task
+			return task
+			
+		except TaskFailedError, e:
+			raise e
+
 	@property
 	def get_power_state(self):
 		""" Return the power state of the VM """
