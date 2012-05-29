@@ -97,6 +97,22 @@ class VirtualMachine(managedobjects.VirtualMachine):
 		except ActionError, e:
 			raise e
 
+	def shutdown_guest(self):
+		""" Attempts to shutdown the guest """
+		try:
+			self.ShutdownGuest()
+			self.update()
+		except ActionError, e:
+			raise e
+
+	def standby_guest(self):
+		""" Attempts to put the guest in standby """
+		try:
+			self.StandbyGuest()
+			self.update()
+		except ActionError, e:
+			raise e
+
 	@property
 	def get_power_state(self):
 		""" Return the power state of the VM """
