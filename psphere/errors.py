@@ -35,3 +35,6 @@ class TemplateNotFoundError(Exception):
 
 class NotImplementedError(Exception):
     pass
+
+class ActionError(Exception):
+	pass

@@ -1,5 +1,5 @@
 from psphere import managedobjects
-from psphere.errors import TaskFailedError
+from psphere.errors import TaskFailedError, ActionError
 
 class VirtualMachine(managedobjects.VirtualMachine):
 	def __init__(self, mo_ref, client):
@@ -87,6 +87,14 @@ class VirtualMachine(managedobjects.VirtualMachine):
 			return task
 			
 		except TaskFailedError, e:
+			raise e
+
+	def reboot_guest(self):
+		""" Attempts to reboot the guest """
+		try:
+			self.RebootGuest()
+			self.update()
+		except ActionError, e:
 			raise e
 
 	@property
