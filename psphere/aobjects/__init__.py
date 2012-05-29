@@ -1,9 +1,14 @@
 from psphere.managedobjects import *
 
+# Subclass managed objects that we have added additional
+# functionality to
+
 from psphere.aobjects.computeresource import ComputeResource
 from psphere.aobjects.clustercomputeresource import ClusterComputeResource
 from psphere.aobjects.datacenter import Datacenter
 from psphere.aobjects.datastore import Datastore
+from psphere.aobjects.task import Task
+from psphere.aobjects.virtualmachine import VirtualMachine
 
 classmap = dict((x.__name__, x) for x in (
     ExtensibleManagedObject,
