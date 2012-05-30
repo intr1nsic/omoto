@@ -1,5 +1,6 @@
 from psphere import managedobjects
 from psphere.errors import TaskFailedError, ActionError
+import datetime
 
 class VirtualMachine(managedobjects.VirtualMachine):
 	def __init__(self, mo_ref, client):
@@ -112,6 +113,55 @@ class VirtualMachine(managedobjects.VirtualMachine):
 			self.update()
 		except ActionError, e:
 			raise e
+
+	@property
+	def uptime(self):
+		""" Return the VM uptime """
+		
+		# Get the latest information
+		self.update()
+
+		now = datetime.datetime.now()
+		bootTime = self.summary.runtime.bootTime
+		uptime = now - bootTime
+		return str(uptime)
+
+	def get_committed_storage(self):
+		""" Return total committed storage """
+
+		# Again, lets get the latest information
+		self.update()
+
+		# Some VM's may have many disks, so lets itterate over the list
+		# and add them up
+		committed = 0
+		for disk in self.storage.perDatastoreUsage:
+			committed += disk['committed']
+
+		return committed
+
+	def get_uncommitted_storage(self):
+		""" Return total uncommitted storage """
+
+		# Update for latest info
+		self.update()
+
+		uncommitted = 0
+		for disk in self.storage.perDatastoreUsage:
+			uncommitted += disk['committed']
+
+		return uncommitted
+
+	def get_unshared_storage(self):
+		""" Return total unshared storage """
+
+		# Update for latest info
+		self.update()
+		shared = 0
+		for disk in self.storage.perDatastoreUsage:
+			shared += disk['shared']
+
+		return shared
 
 	@property
 	def get_power_state(self):
