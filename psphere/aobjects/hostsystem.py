@@ -45,5 +45,13 @@ class HostSystem(managedobjects.HostSystem):
 			else:
 				# Nic not connected to CDP enabled Device
 				cdp_info[neighbor.device] = None
-				
+
 		return cdp_info
+
+	def get_uptime(self):
+		"""
+		Query the host for system uptime
+		returns uptime in seconds
+		"""
+		uptime = self.RetrieveHardwareUptime()
+		return uptime
