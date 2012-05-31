@@ -1,9 +1,10 @@
 from psphere import managedobjects
+from psphere.errors import ConfigError
 
 class HostSystem(managedobjects.HostSystem):
 	def __init__(self, mo_ref, client):
 		managedobjects.HostSystem.__init__(self, mo_ref, client)
-
+		self.client = client
 
 	def query_cdp_detail(self, raw=False):
 		"""
@@ -55,3 +56,65 @@ class HostSystem(managedobjects.HostSystem):
 		"""
 		uptime = self.RetrieveHardwareUptime()
 		return uptime
+
+	def list_vswitches(self):
+		"""
+		Return a list of names of configured vswitches on the host
+		"""
+		self.update()
+
+		net_conf = self.configManager.networkSystem.networkConfig['vswitch']
+
+		vswitches = []
+
+		for vswitch in net_conf:
+			vswitches.append(vswitch['name'])
+
+		return vswitches
+
+	def add_pg_to_vswitch(self, name=None, vlan=None, vswitch=None):
+		"""
+		Method to easily add a new portgroup to a vswitch on a host
+
+		:param name: Name of the Port Group. e.g. "Public Network"
+		:type name: str
+		:param vlan: a vlan ID. e.g. 200
+		:type vlan: int
+		:param vswitch: Name of the vswitch. Can grab this from list_vswitches()
+		:type vswitch: str
+		"""
+
+		# Since this is a network group, lets inspect and double inspect
+		if not isinstance(name, str):
+			raise ConfigError("Portgroup Name must be a str")
+
+		if not isinstance(vlan, int):
+			raise ConfigError("vlan must be an integer")
+
+		if not isinstance(vswitch, str):
+			raise ConfigError("vswitch must be a str")
+
+		actv_vswitches = self.list_vswitches()
+
+		if vswitch not in actv_vswitches:
+			raise ConfigError("Specified vswitch does not exist on the host")
+
+		host_pg_spec = self.client.create("HostPortGroupSpec")
+
+		# Grab our HostNetwork mo_ref
+		host_network = self.configManager.networkSystem
+
+		# Build out our HostPortGroupSpec
+		host_pg_spec.name = name
+		host_pg_spec.vlanId = vlan
+		host_pg_spec.vswitchName = vswitch
+		
+		try:
+			self.update()
+			host_network.AddPortGroup(portgrp=host_pg_spec)
+			
+			# Everything worked, return ok
+			return 0
+
+		except Exception, e:
+			raise ActionError("Unable to add portgroup", e)
