@@ -9,6 +9,7 @@ from psphere.aobjects.datacenter import Datacenter
 from psphere.aobjects.datastore import Datastore
 from psphere.aobjects.task import Task
 from psphere.aobjects.virtualmachine import VirtualMachine
+from psphere.aobjects.hostsystem import HostSystem
 
 classmap = dict((x.__name__, x) for x in (
     ExtensibleManagedObject,
