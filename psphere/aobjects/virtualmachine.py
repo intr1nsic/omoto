@@ -95,6 +95,7 @@ class VirtualMachine(managedobjects.VirtualMachine):
 		try:
 			self.RebootGuest()
 			self.update()
+			return
 		except ActionError, e:
 			raise e
 
@@ -103,6 +104,7 @@ class VirtualMachine(managedobjects.VirtualMachine):
 		try:
 			self.ShutdownGuest()
 			self.update()
+			return
 		except ActionError, e:
 			raise e
 
@@ -111,6 +113,7 @@ class VirtualMachine(managedobjects.VirtualMachine):
 		try:
 			self.StandbyGuest()
 			self.update()
+			return
 		except ActionError, e:
 			raise e
 

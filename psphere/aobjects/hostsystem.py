@@ -1,5 +1,5 @@
 from psphere import managedobjects
-from psphere.errors import ConfigError
+from psphere.errors import ConfigError, TaskFailedError
 
 class HostSystem(managedobjects.HostSystem):
 	def __init__(self, mo_ref, client):
@@ -122,3 +122,28 @@ class HostSystem(managedobjects.HostSystem):
 
 		except Exception, e:
 			raise ActionError("Unable to add portgroup", e)
+
+	def enable_lockdown(self):
+		"""
+		Modifies the permision of the host so that it can only be
+		accessed through the local console or an authorized centralized
+		management application. 
+		"""
+		try:
+			self.EnterLockdownMode()
+			self.update()
+			return
+		except ActionError, e:
+			raise e
+
+	def disable_lockdown(self, async=True):
+		"""
+		Modifies the permision of the host and restores Administrator
+		permission for the local administrative account.
+		"""
+		try:
+			self.ExitLockdownMode()
+			self.update()
+			return
+		except ActionError, e:
+			raise e
