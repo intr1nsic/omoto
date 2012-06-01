@@ -45,7 +45,11 @@ class HostSystem(managedobjects.HostSystem):
 					neighbor['connectedSwitchPort']['vlan']
 			else:
 				# Nic not connected to CDP enabled Device
-				cdp_info[neighbor.device] = None
+				cdp_info[neighbor.device] = {
+												'port': None,
+												'switch': None,
+												'nvlan': None,
+											}
 
 		return cdp_info
 
