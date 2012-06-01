@@ -117,7 +117,6 @@ class VirtualMachine(managedobjects.VirtualMachine):
 		except ActionError, e:
 			raise e
 
-	@property
 	def uptime(self):
 		""" Return the VM uptime """
 		
@@ -166,8 +165,29 @@ class VirtualMachine(managedobjects.VirtualMachine):
 
 		return shared
 
-	@property
 	def get_power_state(self):
 		""" Return the power state of the VM """
 		self.update()
 		return self.summary.runtime.powerState
+
+	def upgrade_tools(self, async=True):
+		""" Try to upgrade tools on the VM """
+		try:
+			task = self.UpgradeTools_Task()
+
+			if async:
+				status = task.wait_for_state([task.STATE_SUCCESS,
+												task.STATE_ERROR])
+
+				if status == task.STATE_ERROR:
+					raise TaskFailedError(task.get_error_message)
+					
+				# Task completed, update object and return
+				self.update()
+				return
+
+			# Task was sync, return the task
+			return task
+
+		except TaskFailedError, e:
+			raise e
