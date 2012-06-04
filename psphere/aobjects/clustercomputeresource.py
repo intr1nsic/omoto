@@ -1,10 +1,12 @@
 from psphere import managedobjects
 from psphere.network import utils
+from psphere.errors import TaskFailedError
 
 class ClusterComputeResource(managedobjects.ClusterComputeResource):
     def __init__(self, mo_ref, client):
         managedobjects.ClusterComputeResource.__init__(self, mo_ref, client)
         self.vlans = {}
+        self.client = client
 
     def __calc_free_mem(self, host_moref):
         """
@@ -101,9 +103,79 @@ class ClusterComputeResource(managedobjects.ClusterComputeResource):
             if store.summary.multipleHostAccess:
                 datastores[store] = [store.summary.freeSpace, store]
                 
-        new_stores = dict(map(lambda item: (item[1][0], item[0]), datastores.items()))
+        new_stores = \
+            dict(map(lambda item: (item[1][0], item[0]), datastores.items()))
+
         best_store = new_stores[max(new_stores.keys())]
         return best_store
+
+
+    def _add_host(self, hostname=None, username=None, password=None, 
+                        sslThumbprint=None, force_connect=False,):
+        """
+        Internal helper to add a host to a cluster.
+        """
+        host_spec = self.client.create("HostConnectSpec")
+        host_spec.force = force_connect
+        host_spec.hostName = hostname
+        host_spec.userName = username
+        host_spec.password = password
+        host_spec.sslThumbprint = sslThumbprint
+
+        # Since we aren't including a folder, delete it
+        delattr(host_spec, "vmFolder")
+
+        return self.AddHost_Task(spec=host_spec, asConnected=True)
+
+
+    def add_host(self, async=True, hostname=None, username=None, password=None, 
+                            sslThumbprint=None, force_connect=False,):
+        """
+        Add a physical host to the cluster
+
+        :param async: Wait for the task to complete
+        :type async: bool
+        :param hostname: Hostname of the host being added
+        :type hostname: str
+        :param userame: Username to connect to the host. Usually root
+        :type username: str
+        :param password: Password to use to connect to the host.
+        :type password: str
+        :param force_connect: Even if connection fails, add the host
+        :type force_connect: bool
+        :param insecure: Ignore SSL thumbprint on host verification
+        :type insecure: bool
+        """
+
+        try:
+            task = self._add_host(hostname, username, password, \
+                                    sslThumbprint, force_connect)
+
+            if async:
+                status = task.wait_for_state([task.STATE_SUCCESS,
+                                                task.STATE_ERROR])
+
+                if status == task.STATE_ERROR:
+                    # Lets check for invalid thumbprints
+                    if hasattr(task.info.error.fault, "selfSigned"):
+                        sslThumbprint = task.info.error.fault.thumbprint
+                        task = self._add_host(hostname, username, password, \
+                                                sslThumbprint, force_connect)
+
+                        # Wait for the task to complete
+                        task.wait_for_state([task.STATE_SUCCESS])
+                    else:
+                        raise TaskFailedError(task.get_error_message)
+
+
+                # return the host that was added
+                return task.info.result
+
+            return task
+
+        except TaskFailedError, e:
+            return e
+
 
 def best_cluster(ccr_list):
     """
