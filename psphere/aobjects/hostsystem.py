@@ -1,5 +1,5 @@
 from psphere import managedobjects
-from psphere.errors import ConfigError, TaskFailedError
+from psphere.errors import ConfigError, TaskFailedError, ActionError
 
 class HostSystem(managedobjects.HostSystem):
 	def __init__(self, mo_ref, client):
@@ -122,6 +122,46 @@ class HostSystem(managedobjects.HostSystem):
 
 		except Exception, e:
 			raise ActionError("Unable to add portgroup", e)
+
+	def create_vswitch(self, name=None, mtu=1500, spec=None, numPorts=1024):
+		"""
+		Create a standard vswitch on the host.
+
+		Default MTU ( 1500 ) will be used
+		Default Port Counts will be the max, 1024
+
+		:param name: vSwitch name
+		:type name: str
+		:param mtu: MTU for the created vSwitch
+		:type mtu: int
+		:param spec: Custom Spec. Otherwise, a default will be used
+		:type spec: HostVirtualSwitchSpec
+		:param numPorts: Number of ports to create on the vSwitch
+		:type numPorts: int
+		"""
+
+		if spec:
+			if not hasattr(spec, "dynamicType"):
+				raise Exception("Invalid Spec")
+			else:
+				vswitch_spec = spec
+		else:
+			vswitch_spec = self.client.create("HostVirtualSwitchSpec")
+			# We need to delete attr's we aren't using. 
+			delattr(vswitch_spec, "bridge")
+			delattr(vswitch_spec, "policy")
+
+		# Set some spec values
+		vswitch_spec.mtu = mtu
+		vswitch_spec.numPorts = numPorts
+
+		# Lets create that spec
+		try:
+			host_netMgr = self.configManager.networkSystem
+			host_netMgr.AddVirtualSwitch(vswitchName=name, spec=vswitch_spec)
+			return
+		except Exception, e:
+			raise ActionError(e)
 
 	def enable_lockdown(self):
 		"""
