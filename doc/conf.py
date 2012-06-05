@@ -93,7 +93,7 @@ modindex_common_prefix = ['psphere.']
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
-html_theme = 'sphinxdoc'
+html_theme = 'default'
 html_index = 'index.html'
 html_sidebars = {'index': ['indexsidebar.html']}
 html_additional_pages = {'index': 'index.html'}
