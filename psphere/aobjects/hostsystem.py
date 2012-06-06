@@ -163,6 +163,32 @@ class HostSystem(managedobjects.HostSystem):
 		except Exception, e:
 			raise ActionError(e)
 
+	def add_nas_datastore(self, remoteHost=None, 
+							remotePath=None, localPath=None):
+		"""
+		Add NFS store to the host. Mounts the NFS volume as Read/Write
+
+		:param remoteHost: IP or DNS entry for the remote NAS
+		:type remoteHost: str
+		:param remotePath: Path of the remote mount. E.G. /export/<volume>
+		:type remotePath: str
+		:param localPath: Name of the local datastore
+		:type localPath: str
+		"""
+		# Create our NAS Spec
+		nas_spec = self.client.create("HostNasVolumeSpec")
+		nas_spec.remoteHost = remoteHost
+		nas_spec.remotePath = remotePath
+		nas_spec.localPath = localPath
+		nas_spec.accessMode = "readWrite"
+
+		try:
+			dstore_sys = self.configManager.datastoreSystem
+			nas_store = dstore_sys.CreateNasDatastore(spec=nas_spec)
+			return nas_store
+		except Exception, e:
+			raise Exception(e)
+
 	def enable_lockdown(self):
 		"""
 		Modifies the permision of the host so that it can only be
