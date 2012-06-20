@@ -5,6 +5,25 @@ class Datastore(managedobjects.Datastore):
 	def __init__(self, mo_ref, client):
 		managedobjects.Datastore.__init__(self, mo_ref, client)
 
+	@classmethod
+	def all(cls, client):
+		"""
+		Grab all the Datastores in all the Datacenters that
+		vcenter manages
+		"""
+		datastores = []
+
+		datacenters = client.find_entity_views('Datacenter')
+
+		if not datacenters:
+			return 
+
+		for dc in datacenters:
+			for ds in dc.datastore:
+				datastores.append(ds)
+
+		return datastores		
+
 	@property
 	def provisioned_space(self):
 		"""
