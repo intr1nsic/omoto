@@ -2,6 +2,8 @@ include CHANGES
 include LICENSE
 include README
 include psphere/wsdl/*
+include psphere/aobjects/*
+include psphere/network/*
 include examples/*.py
 include examples/sample_config.yaml
 include examples/templates/*
