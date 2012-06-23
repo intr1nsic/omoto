@@ -1,2 +1,1 @@
-psphere==0.5.1
 iptools==0.4.0
