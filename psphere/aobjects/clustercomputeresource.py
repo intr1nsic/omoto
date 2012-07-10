@@ -110,6 +110,21 @@ class ClusterComputeResource(managedobjects.ClusterComputeResource):
         return best_store
 
 
+    @property
+    def vms(self):
+        """
+        return a list of VM's within in the cluster
+        """
+        vms = []
+        
+        hosts = self.host
+        
+        if len(hosts) > 0:
+            for host in hosts:
+                for vm in host.vm:
+                    vms.append(vm)
+            return vms
+
     def _add_host(self, hostname=None, username=None, password=None, 
                         sslThumbprint=None, force_connect=False,):
         """
