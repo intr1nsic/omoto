@@ -214,14 +214,19 @@ class HostSystem(managedobjects.HostSystem):
 		except ActionError, e:
 			raise e
 
-	@property
-	def available(self):
+	def available(self, preUpdate=True):
 		"""
 		Query host to see if it is available
+
+		:param preUpdate: Update the host before checking if its available
+		:type preUpdate: boolean
+
 		True = ['connected']
 		False = ['disconnected', 'notResponding']
 		"""
-		self.update()
+		if preUpdate:
+			self.update()
+		
 		badStates = ['disconnected', 'notResponding']
 		if self.runtime.connectionState in badStates:
 			return False
