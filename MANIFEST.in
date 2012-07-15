@@ -1,6 +1,6 @@
 include CHANGES
 include LICENSE
-include README
+include README.rst
 include psphere/wsdl/*
 include psphere/aobjects/*
 include psphere/network/*
