@@ -213,3 +213,17 @@ class HostSystem(managedobjects.HostSystem):
 			return
 		except ActionError, e:
 			raise e
+
+	@property
+	def available(self):
+		"""
+		Query host to see if it is available
+		True = ['connected']
+		False = ['disconnected', 'notResponding']
+		"""
+		self.update()
+		badStates = ['disconnected', 'notResponding']
+		if self.runtime.connectionState in badStates:
+			return False
+		else:
+			return True
