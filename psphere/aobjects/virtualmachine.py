@@ -191,3 +191,10 @@ class VirtualMachine(managedobjects.VirtualMachine):
 
 		except TaskFailedError, e:
 			raise e
+
+	@property
+	def is_template(self):
+		"""
+		Return true if template, else false
+		"""
+		return self.summary.config.template

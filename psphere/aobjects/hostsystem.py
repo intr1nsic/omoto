@@ -214,7 +214,7 @@ class HostSystem(managedobjects.HostSystem):
 		except ActionError, e:
 			raise e
 
-	def available(self, preUpdate=True):
+	def available(self, preUpdate=False):
 		"""
 		Query host to see if it is available
 
