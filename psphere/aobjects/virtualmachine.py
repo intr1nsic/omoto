@@ -168,8 +168,11 @@ class VirtualMachine(managedobjects.VirtualMachine):
 	def get_power_state(self):
 		""" Return the power state of the VM """
 		self.update()
-		return self.summary.runtime.powerState
-
+		if hasattr(self.summary.runtime, "powerState"):
+			return self.summary.runtime.powerState
+		else:
+			return "poweredOff"
+			
 	def upgrade_tools(self, async=True):
 		""" Try to upgrade tools on the VM """
 		try:
