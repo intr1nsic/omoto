@@ -510,6 +510,42 @@ class Folder(ManagedEntity):
        return self._get_dataobject("childType", True)
 
 
+class GuestAuthManager(ManagedObject):
+    _valid_attrs = set([])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
+
+
+class GuestFileManager(ManagedObject):
+    _valid_attrs = set([])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
+
+
+class GuestOperationsManager(ManagedObject):
+    _valid_attrs = set(['authManager', 'fileManager', 'processManager'])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
+    @cached_property
+    def authManager(self):
+       return self._get_mor("authManager", False)
+    @cached_property
+    def fileManager(self):
+       return self._get_mor("fileManager", False)
+    @cached_property
+    def processManager(self):
+       return self._get_mor("processManager", False)
+
+
+class GuestProcessManager(ManagedObject):
+    _valid_attrs = set([])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
+
 class HostAuthenticationStore(ManagedObject):
     _valid_attrs = set(['info'])
     def __init__(self, mo_ref, client):
@@ -563,6 +599,14 @@ class HostBootDeviceSystem(ManagedObject):
         ManagedObject.__init__(self, mo_ref, client)
         self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
 
+class HostCacheConfigurationManager(ManagedObject):
+    _valid_attrs = set(['cacheConfigurationInfo'])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
+    @cached_property
+    def cacheConfigurationInfo(self):
+       return self._get_dataobject("cacheConfigurationInfo", True)
 
 class HostCpuSchedulerSystem(ExtensibleManagedObject):
     _valid_attrs = set(['hyperthreadInfo'])
@@ -619,6 +663,14 @@ class HostDiagnosticSystem(ManagedObject):
     def activePartition(self):
        return self._get_dataobject("activePartition", False)
 
+class HostEsxAgentHostManager(ManagedObject):
+    _valid_attrs = set(['configInfo'])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
+    @cached_property
+    def configInfo(self):
+       return self._get_dataobject("configInfo", False)
 
 class HostFirewallSystem(ExtensibleManagedObject):
     _valid_attrs = set(['firewallInfo'])
@@ -646,6 +698,11 @@ class HostHealthStatusSystem(ManagedObject):
     def runtime(self):
        return self._get_dataobject("runtime", False)
 
+class HostImageConfigManager(ManagedObject):
+    _valid_attrs = set([])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
 
 class HostKernelModuleSystem(ManagedObject):
     _valid_attrs = set([])
@@ -799,7 +856,7 @@ class HostStorageSystem(ExtensibleManagedObject):
 
 
 class HostSystem(ManagedEntity):
-    _valid_attrs = set(['capability', 'config', 'configManager', 'datastore', 'datastoreBrowser', 'hardware', 'network', 'runtime', 'summary', 'systemResources', 'vm'])
+    _valid_attrs = set(['capability', 'config', 'configManager', 'datastore', 'datastoreBrowser', 'hardware', 'licensableResource', 'network', 'runtime', 'summary', 'systemResources', 'vm'])
     def __init__(self, mo_ref, client):
         ManagedEntity.__init__(self, mo_ref, client)
         self._valid_attrs = set.union(self._valid_attrs, ManagedEntity._valid_attrs)
@@ -818,6 +875,9 @@ class HostSystem(ManagedEntity):
     @cached_property
     def datastoreBrowser(self):
        return self._get_mor("datastoreBrowser", False)
+    @cached_property
+    def licensableResource(self):
+       return self._get_dataobject("licensableResource", False)
     @cached_property
     def hardware(self):
        return self._get_dataobject("hardware", False)
@@ -893,6 +953,11 @@ class IpPoolManager(ManagedObject):
         ManagedObject.__init__(self, mo_ref, client)
         self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
 
+class IscsiManager(ManagedObject):
+    _valid_attrs = set([])
+    def __init__(self, mo_ref, client):
+        ManagedObject.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, ManagedObject._valid_attrs)
 
 class LicenseAssignmentManager(ManagedObject):
     _valid_attrs = set([])
@@ -1120,6 +1185,17 @@ class SessionManager(ManagedObject):
     def supportedLocaleList(self):
        return self._get_dataobject("supportedLocaleList", True)
 
+class StoragePod(Folder):
+    _valid_attrs = set(['podStorageDrsEntry', 'summary'])
+    def __init__(self, mo_ref, client):
+        Folder.__init__(self, mo_ref, client)
+        self._valid_attrs = set.union(self._valid_attrs, Folder._valid_attrs)
+    @cached_property
+    def podStorageDrsEntry(self):
+       return self._get_dataobject("podStorageDrsEntry", False)
+    @cached_property
+    def summary(self):
+       return self._get_dataobject("summary", False)
 
 class StorageResourceManager(ManagedObject):
     _valid_attrs = set([])
